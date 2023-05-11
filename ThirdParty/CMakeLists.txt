@@ -1,0 +1,66 @@
+# GLM
+add3rdheaderonlypackage(
+  NAME
+  GLM
+  PLATFORM
+  All
+  VERSION
+  0.9.9.8
+  HASH
+  f78f0cf73e5601536203e0098c4e611d1c37d3df60b3209e70a10e3abd3bbe58
+  INCLUDE
+  $<SOURCE_DIR>)
+
+# VulkanSDK
+add3rdbinarypackage(
+  NAME
+  VulkanSDK
+  PLATFORM
+  Windows
+  VERSION
+  1.3.243.0
+  HASH
+  23ded0e6155a8ea265da84bd62f7a45cc3fc637fb1eeba61a5b9430fa704e4b5
+  INCLUDE
+  $<SOURCE_DIR>/Include
+  LINK
+  $<SOURCE_DIR>/Lib
+  LIB
+  vulkan-1)
+add3rdbinarypackage(
+  NAME
+  VulkanSDK
+  PLATFORM
+  Darwin
+  VERSION
+  1.3.243.0
+  HASH
+  a5c63a4f29984540efa00190240d31b59539413cf4783792bd9f53207f4f7d07
+  INCLUDE
+  $<SOURCE_DIR>/macOS/include
+  LINK
+  $<SOURCE_DIR>/macOS/lib
+  LIB
+  vulkan.1)
+
+# GLFW
+add3rdcmakeproject(
+  NAME
+  glfw
+  PLATFORM
+  All
+  VERSION
+  3.3.6
+  HASH
+  d3a7807f604b0f92af7606b2018a007892bb8de0db5efb99e26fb1f41b828da4
+  CMAKE_ARG
+  -DUSE_MSVC_RUNTIME_LIBRARY_DLL=OFF
+  -DGLFW_BUILD_EXAMPLES=OFF
+  -DGLFW_BUILD_TESTS=OFF
+  -DGLFW_BUILD_DOCS=OFF
+  INCLUDE
+  $<INSTALL_DIR>/include
+  LINK
+  $<INSTALL_DIR>/lib
+  LIB
+  glfw3)

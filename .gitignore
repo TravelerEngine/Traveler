@@ -30,3 +30,19 @@
 *.exe
 *.out
 *.app
+
+vcpkg_installed/
+
+# JetBrains
+.idea
+
+# Visual Studio Code
+.vscode
+
+# Binaries
+cmake-build*
+build*
+
+# 3rd
+ThirdParty/Zip
+ThirdParty/Lib
