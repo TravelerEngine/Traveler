@@ -5,12 +5,13 @@
 #include <memory>
 
 namespace RHI::Vulkan {
+    class VKGpu;
     class VKDevicePrivate;
     class VKDevice {
         std::unique_ptr<VKDevicePrivate> m_private;
 
     public:
-        explicit VKDevice(vk::PhysicalDevice* GPU);
+        explicit VKDevice(VKGpu* GPU);
         ~VKDevice();
     };
 } // namespace RHI::Vulkan

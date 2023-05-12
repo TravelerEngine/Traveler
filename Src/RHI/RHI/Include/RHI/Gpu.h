@@ -9,6 +9,6 @@
 namespace RHI {
     class Gpu {
     public:
-        virtual ~Gpu();
+        virtual ~Gpu() = default;
     };
 } // namespace RHI

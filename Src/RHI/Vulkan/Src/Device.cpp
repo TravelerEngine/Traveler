@@ -1,27 +1,37 @@
 #include "RHI/Vulkan/Device.h"
 
+#include "RHI/Vulkan/Gpu.h"
+
 #include <iostream>
 
 namespace RHI::Vulkan {
+    const std::vector<const char*> extensions {};
+    const std::vector<const char*> layers {"VK_LAYER_KHRONOS_validation"};
+
     class VKDevicePrivate {
     public:
-        vk::Device m_device;
-        vk::PhysicalDevice* m_GPU;
+        VKGpu* m_GPU;
         vk::PhysicalDeviceProperties m_GPUProperties;
         vk::PhysicalDeviceMemoryProperties m_memoryProperties;
 
-        vk::Queue m_queue;
         std::vector<vk::QueueFamilyProperties> m_queueFamilyProperties;
 
         uint32_t m_graphicsQueueFamilyIndex;
         uint32_t m_graphicsFamilyCount;
 
-        VKDevicePrivate()
+        explicit VKDevicePrivate(VKGpu* GPU)
+            : m_GPU(GPU)
         {
+            CreateDevice();
         }
 
-        ~VKDevicePrivate()
+        ~VKDevicePrivate() = default;
+
+        vk::Result CreateDevice()
         {
+            vk::Result result;
+
+            return result;
         }
 
         vk::Result GetDeviceExtensionProperties()
@@ -35,8 +45,8 @@ namespace RHI::Vulkan {
         }
     };
 
-    VKDevice::VKDevice(vk::PhysicalDevice* GPU)
-        : m_private(std::make_unique<VKDevicePrivate>())
+    VKDevice::VKDevice(VKGpu* GPU)
+        : m_private(std::make_unique<VKDevicePrivate>(GPU))
     {}
     VKDevice::~VKDevice() = default;
 } // namespace RHI::Vulkan

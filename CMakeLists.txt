@@ -16,6 +16,7 @@ include(CMake/Target.cmake)
 include(CMake/ThirdParty.cmake)
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
   add_definitions(-DDEBUG)
   add_definitions(-DBIN_PATH="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 endif()
