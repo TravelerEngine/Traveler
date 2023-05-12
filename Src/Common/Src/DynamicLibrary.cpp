@@ -3,8 +3,6 @@
 #include <filesystem>
 #include <iostream>
 
-#include <dlfcn.h>
-
 using namespace Common;
 
 // TODO: 需要设计一下插件加载路径
@@ -23,8 +21,7 @@ std::string GetPlatformSpecificLibraryName(const std::string& name)
 #elif defined(__APPLE__)
     static const std::string ext = "dylib";
 #else
-    static const std::string ext
-        = "so";
+    static const std::string ext = "so";
 #endif
 
     if (filename.substr(filename.find_last_of('.') + 1) != ext) {
@@ -40,17 +37,17 @@ DynamicLibrary::DynamicLibrary(const std::string& lib)
 #if DEBUG
     path = BIN_PATH "/" + lib;
 #endif
-    m_handle = dlopen(path.c_str(), RTLD_NOW);
+    m_handle = DYNAMIC_LIB_LOAD(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
 }
 
 DynamicLibrary::~DynamicLibrary()
 {
-    dlclose(m_handle);
+    DYNAMIC_LIB_UNLOAD(m_handle);
 }
 
 void* DynamicLibrary::GetSymbol(const std::string& symbol)
 {
-    return dlsym(m_handle, symbol.c_str());
+    return DYNAMIC_LIB_GET_SYMBOL(m_handle, symbol.c_str());
 }
 
 DynamicLibrary* DynamicLibraryManager::Load(const std::string& name)
