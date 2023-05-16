@@ -35,7 +35,10 @@ DynamicLibrary::DynamicLibrary(const std::string& lib)
 {
     std::string path = lib;
 #if DEBUG
-    path = BIN_PATH "/" + lib;
+    std::filesystem::path dir(BIN_PATH);
+    dir.append(lib);
+    path = dir.make_preferred().string();
+    std::cout << "load dynamic library: " << path << std::endl;
 #endif
     m_handle = DYNAMIC_LIB_LOAD(path.c_str(), RTLD_LOCAL | RTLD_LAZY);
 }
