@@ -1,18 +1,25 @@
 #include "RHI/Vulkan/Device.h"
 
 #include "RHI/Vulkan/Gpu.h"
+#include "vulkan/vulkan_structs.hpp"
 
 #include <iostream>
 
 namespace RHI::Vulkan {
-    const std::vector<const char*> extensions {};
+    const std::vector<const char*> extensions
+    {
+#if PLATFORM_MACOS
+        "VK_KHR_portability_subset"
+#endif
+    };
     const std::vector<const char*> layers {"VK_LAYER_KHRONOS_validation"};
 
     class VKDevicePrivate {
     public:
         VKGpu* m_GPU;
-        std::vector<vk::QueueFamilyProperties> m_queueFamilyProperties;
         uint32_t m_graphicsQueueFamilyIndex;
+        std::vector<vk::QueueFamilyProperties> m_queueFamilyProperties;
+        vk::Device vkDevice;
 
         explicit VKDevicePrivate(VKGpu* GPU)
             : m_GPU(GPU)
@@ -20,7 +27,10 @@ namespace RHI::Vulkan {
             CreateDevice();
         }
 
-        ~VKDevicePrivate() = default;
+        ~VKDevicePrivate()
+        {
+            vkDevice.destroy();
+        }
 
         vk::Result CreateDevice()
         {
@@ -45,6 +55,18 @@ namespace RHI::Vulkan {
                     queueCreateInfos.emplace_back(info);
                 }
             }
+
+            vk::DeviceCreateInfo deviceCreateInfo;
+            deviceCreateInfo.setQueueCreateInfoCount(queueCreateInfos.size());
+            deviceCreateInfo.setPQueueCreateInfos(queueCreateInfos.data());
+
+            deviceCreateInfo.setEnabledExtensionCount(extensions.size());
+            deviceCreateInfo.setPpEnabledExtensionNames(extensions.data());
+
+            deviceCreateInfo.setEnabledLayerCount(layers.size());
+            deviceCreateInfo.setPpEnabledLayerNames(layers.data());
+
+            assert(physicalDevice.createDevice(&deviceCreateInfo, nullptr, &vkDevice) == vk::Result::eSuccess);
 
             return result;
         }

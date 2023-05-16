@@ -1,6 +1,7 @@
 #include "RHI/Vulkan/Instance.h"
 
 #include "RHI/Vulkan/Common.h"
+#include "RHI/Vulkan/Device.h"
 #include "RHI/Vulkan/Gpu.h"
 
 #include <vulkan/vulkan_core.h>
@@ -127,6 +128,14 @@ namespace RHI::Vulkan {
     {
         m_private->CreateInstance();
         m_private->EnumeratePhysicalDevice();
+
+        std::cout << "============" << std::endl;
+        std::cout << "    dump    " << std::endl;
+        std::cout << "GPUs: " << m_private->gpus.size() << std::endl;
+        for (const auto& gpu : m_private->gpus) {
+            auto* device {gpu->CreateDevice()};
+            std::cout << "\t" << device;
+        }
     }
 
     VKInstance::~VKInstance() = default;
