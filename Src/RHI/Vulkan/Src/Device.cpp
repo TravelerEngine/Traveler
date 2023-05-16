@@ -11,13 +11,8 @@ namespace RHI::Vulkan {
     class VKDevicePrivate {
     public:
         VKGpu* m_GPU;
-        vk::PhysicalDeviceProperties m_GPUProperties;
-        vk::PhysicalDeviceMemoryProperties m_memoryProperties;
-
         std::vector<vk::QueueFamilyProperties> m_queueFamilyProperties;
-
         uint32_t m_graphicsQueueFamilyIndex;
-        uint32_t m_graphicsFamilyCount;
 
         explicit VKDevicePrivate(VKGpu* GPU)
             : m_GPU(GPU)
@@ -31,15 +26,25 @@ namespace RHI::Vulkan {
         {
             vk::Result result;
 
-            return result;
-        }
+            auto physicalDevice {m_GPU->GetVkPhysicalDevice()};
 
-        vk::Result GetDeviceExtensionProperties()
-        {
-            vk::Result result;
+            uint32_t queueFamilyCount;
+            physicalDevice.getQueueFamilyProperties(&queueFamilyCount, nullptr);
+            m_queueFamilyProperties.resize(queueFamilyCount);
+            physicalDevice.getQueueFamilyProperties(&queueFamilyCount, m_queueFamilyProperties.data());
 
-            std::cout << "Device Extensions" << std::endl;
-            std::cout << "=================" << std::endl;
+            std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
+            for (unsigned int i = 0; i < queueFamilyCount; ++i) {
+                if (m_queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics) {
+                    std::vector<float> queuePriorities(m_queueFamilyProperties[i].queueCount, 1.0f);
+                    vk::DeviceQueueCreateInfo info;
+
+                    info.queueFamilyIndex = i;
+                    info.queueCount = m_queueFamilyProperties[i].queueCount;
+                    info.pQueuePriorities = queuePriorities.data();
+                    queueCreateInfos.emplace_back(info);
+                }
+            }
 
             return result;
         }
