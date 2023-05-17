@@ -15,7 +15,6 @@ namespace RHI::Vulkan {
     public:
         VKInstance* instance;
         vk::PhysicalDevice device;
-        std::vector<LayerProperties> layerProperties;
 
         explicit VKGpuPrivate(VKInstance* instance, vk::PhysicalDevice device)
             : instance(instance)
@@ -24,28 +23,18 @@ namespace RHI::Vulkan {
             GetExtensionProperties();
         }
 
-        vk::Result GetExtensionProperties()
+        vk::Result GetExtensionProperties() const
         {
             std::cout << "Devices extensions" << std::endl;
             std::cout << "================" << std::endl;
 
             vk::Result result;
             for (const auto& props : instance->GetLayerProperties()) {
-                uint32_t extensionCount;
-                LayerProperties properties;
-                properties.properties = props.properties.layerName;
-                device.enumerateDeviceExtensionProperties(properties.properties.layerName, &extensionCount, nullptr);
-                if (extensionCount == 0u) {
-                    continue;
-                }
-                properties.extensions.resize(extensionCount);
-                device.enumerateDeviceExtensionProperties(properties.properties.layerName, &extensionCount, properties.extensions.data());
-                layerProperties.push_back(properties);
+                auto properties = device.enumerateDeviceExtensionProperties();
+                std::cout << props.properties.description << std::endl
+                          << "\t|\n\t|---[Layer Name]--> " << props.properties.layerName << std::endl;
 
-                std::cout << properties.properties.description << std::endl
-                          << "\t|\n\t|---[Layer Name]--> " << properties.properties.layerName << std::endl;
-
-                for (auto ext : properties.extensions) {
+                for (auto ext : properties) {
                     std::cout << "\t\t|" << std::endl
                               << "\t\t|---[Layer Extension]--> " << ext.extensionName << std::endl;
                 }

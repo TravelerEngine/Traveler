@@ -22,8 +22,9 @@ namespace RHI::Vulkan {
     class VKDevicePrivate {
     public:
         VKGpu* m_GPU;
-        uint32_t m_graphicsQueueFamilyIndex;
-        std::vector<vk::QueueFamilyProperties> m_queueFamilyProperties;
+        uint32_t graphicsQueueFamilyIndex;
+        std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
+        std::vector<vk::Queue> graphicsQueues;
         vk::Device vkDevice;
 
         explicit VKDevicePrivate(VKGpu* GPU)
@@ -42,36 +43,39 @@ namespace RHI::Vulkan {
             vk::Result result;
 
             auto physicalDevice {m_GPU->GetVkPhysicalDevice()};
+            queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
 
-            uint32_t queueFamilyCount;
-            physicalDevice.getQueueFamilyProperties(&queueFamilyCount, nullptr);
-            m_queueFamilyProperties.resize(queueFamilyCount);
-            physicalDevice.getQueueFamilyProperties(&queueFamilyCount, m_queueFamilyProperties.data());
+            assert(!queueFamilyProperties.empty());
 
             std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
-            for (unsigned int i = 0; i < queueFamilyCount; ++i) {
-                if (m_queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics) {
-                    std::vector<float> queuePriorities(m_queueFamilyProperties[i].queueCount, 1.0f);
+            for (unsigned int i = 0; i < queueFamilyProperties.size(); ++i) {
+                if (queueFamilyProperties[i].queueFlags | vk::QueueFlagBits::eGraphics) {
+                    float priority = 1.0f;
                     vk::DeviceQueueCreateInfo info;
+                    info.setQueueFamilyIndex(i)
+                        .setQueueCount(queueFamilyProperties[i].queueCount)
+                        .setPQueuePriorities(&priority);
 
-                    info.queueFamilyIndex = i;
-                    info.queueCount = m_queueFamilyProperties[i].queueCount;
-                    info.pQueuePriorities = queuePriorities.data();
                     queueCreateInfos.emplace_back(info);
                 }
             }
 
             vk::DeviceCreateInfo deviceCreateInfo;
-            deviceCreateInfo.setQueueCreateInfoCount(queueCreateInfos.size());
-            deviceCreateInfo.setPQueueCreateInfos(queueCreateInfos.data());
-
-            deviceCreateInfo.setEnabledExtensionCount(extensions.size());
-            deviceCreateInfo.setPpEnabledExtensionNames(extensions.data());
-
-            deviceCreateInfo.setEnabledLayerCount(layers.size());
-            deviceCreateInfo.setPpEnabledLayerNames(layers.data());
+            deviceCreateInfo.setQueueCreateInfoCount(queueCreateInfos.size())
+                .setPQueueCreateInfos(queueCreateInfos.data())
+                .setEnabledExtensionCount(extensions.size())
+                .setPpEnabledExtensionNames(extensions.data())
+                .setEnabledLayerCount(layers.size())
+                .setPpEnabledLayerNames(layers.data());
 
             assert(physicalDevice.createDevice(&deviceCreateInfo, nullptr, &vkDevice) == vk::Result::eSuccess);
+
+            graphicsQueues.resize(queueCreateInfos.size());
+            for (auto const& info : queueCreateInfos) {
+                graphicsQueues.emplace_back(vkDevice.getQueue(queueCreateInfos[0].queueFamilyIndex, 0));
+            }
+
+            assert(!graphicsQueues.empty());
 
             return result;
         }
