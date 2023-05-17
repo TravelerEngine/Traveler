@@ -1,7 +1,7 @@
 #include "RHI/Vulkan/Device.h"
 
 #include "RHI/Vulkan/Gpu.h"
-#include "vulkan/vulkan_structs.hpp"
+#include "RHI/Vulkan/Queue.h"
 
 #include <iostream>
 
@@ -24,13 +24,15 @@ namespace RHI::Vulkan {
         VKGpu* m_GPU;
         uint32_t graphicsQueueFamilyIndex;
         std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
-        std::vector<vk::Queue> graphicsQueues;
+        std::vector<std::shared_ptr<VKQueue>> graphicsQueues;
+        std::vector<vk::CommandPool> pools;
         vk::Device vkDevice;
 
         explicit VKDevicePrivate(VKGpu* GPU)
             : m_GPU(GPU)
         {
             CreateDevice();
+            CreateQueue();
         }
 
         ~VKDevicePrivate()
@@ -72,12 +74,25 @@ namespace RHI::Vulkan {
 
             graphicsQueues.resize(queueCreateInfos.size());
             for (auto const& info : queueCreateInfos) {
-                graphicsQueues.emplace_back(vkDevice.getQueue(queueCreateInfos[0].queueFamilyIndex, 0));
+                auto queue = vkDevice.getQueue(queueCreateInfos[0].queueFamilyIndex, 0);
+                graphicsQueues.emplace_back(std::make_shared<VKQueue>(queue));
             }
 
             assert(!graphicsQueues.empty());
 
             return result;
+        }
+
+        void CreateQueue()
+        {
+            vk::CommandPoolCreateInfo info;
+            info.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+
+            vk::CommandPool commandPoll;
+
+            vkDevice.createCommandPool(&info, nullptr, &commandPoll);
+
+            vkDevice.destroyCommandPool(commandPoll);
         }
     };
 
