@@ -25,7 +25,7 @@ public:
   explicit DynamicLibrary(const std::string &lib);
   virtual ~DynamicLibrary();
   inline DYNAMIC_LIB_HANDLE GetHandle() const { return m_handle; }
-  void *GetSymbol(const std::string &name);
+  void *GetSymbol(const std::string &symbol);
 
 private:
   DYNAMIC_LIB_HANDLE m_handle = nullptr;
