@@ -2,6 +2,7 @@
 
 #include "RHI/Vulkan/Gpu.h"
 #include "RHI/Vulkan/Queue.h"
+#include "vulkan/vulkan_structs.hpp"
 
 #include <iostream>
 
@@ -32,7 +33,6 @@ namespace RHI::Vulkan {
             : m_GPU(GPU)
         {
             CreateDevice();
-            CreateQueue();
         }
 
         ~VKDevicePrivate()
@@ -51,19 +51,25 @@ namespace RHI::Vulkan {
 
             std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
             for (unsigned int i = 0; i < queueFamilyProperties.size(); ++i) {
-                if (queueFamilyProperties[i].queueFlags | vk::QueueFlagBits::eGraphics) {
+                if (queueFamilyProperties[i].queueFlags & vk::QueueFlagBits::eGraphics) {
                     float priority = 1.0f;
                     vk::DeviceQueueCreateInfo info;
                     info.setQueueFamilyIndex(i)
                         .setQueueCount(queueFamilyProperties[i].queueCount)
                         .setPQueuePriorities(&priority);
 
-                    queueCreateInfos.emplace_back(info);
+                    queueCreateInfos.push_back(info);
                 }
             }
 
+            assert(!queueCreateInfos.empty());
+
+            vk::PhysicalDeviceFeatures deviceFeatures;
+
             vk::DeviceCreateInfo deviceCreateInfo;
-            deviceCreateInfo.setQueueCreateInfoCount(queueCreateInfos.size())
+            deviceCreateInfo
+                .setPEnabledFeatures(&deviceFeatures)
+                .setQueueCreateInfoCount(queueCreateInfos.size())
                 .setPQueueCreateInfos(queueCreateInfos.data())
                 .setEnabledExtensionCount(extensions.size())
                 .setPpEnabledExtensionNames(extensions.data())
@@ -74,25 +80,12 @@ namespace RHI::Vulkan {
 
             graphicsQueues.resize(queueCreateInfos.size());
             for (auto const& info : queueCreateInfos) {
-                auto queue = vkDevice.getQueue(queueCreateInfos[0].queueFamilyIndex, 0);
-                graphicsQueues.emplace_back(std::make_shared<VKQueue>(queue));
+                vk::Queue graphicsQueue;
+                vkDevice.getQueue(info.queueFamilyIndex, info.queueCount, &graphicsQueue);
+                graphicsQueues.emplace_back(std::make_shared<VKQueue>(graphicsQueue));
             }
 
-            assert(!graphicsQueues.empty());
-
             return result;
-        }
-
-        void CreateQueue()
-        {
-            vk::CommandPoolCreateInfo info;
-            info.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
-
-            vk::CommandPool commandPoll;
-
-            vkDevice.createCommandPool(&info, nullptr, &commandPoll);
-
-            vkDevice.destroyCommandPool(commandPoll);
         }
     };
 
