@@ -53,13 +53,19 @@ namespace RHI::Vulkan {
 
     VKGpu::~VKGpu() = default;
 
-    VKDevice* VKGpu::CreateDevice()
+    std::shared_ptr<VKDevice> VKGpu::CreateDevice()
     {
-        return new VKDevice(this);
+        return std::make_shared<VKDevice>(*this);
     }
 
     const vk::PhysicalDevice& VKGpu::GetVkPhysicalDevice() const
     {
         return m_private->device;
+    }
+
+    std::string VKGpu::DeviceName() const
+    {
+        auto props = m_private->device.getProperties();
+        return props.deviceName;
     }
 } // namespace RHI::Vulkan

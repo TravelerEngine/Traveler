@@ -131,16 +131,8 @@ namespace RHI::Vulkan {
     {
         m_private->CreateInstance();
         m_private->EnumeratePhysicalDevice();
-
-        std::cout << "============" << std::endl;
-        std::cout << "dump gpu info" << std::endl;
-        std::cout << "============" << std::endl;
-        std::cout << "GPUs: " << m_private->gpus.size() << std::endl;
-        for (const auto& gpu : m_private->gpus) {
-            auto* device {gpu->CreateDevice()};
-            std::cout << "\t|-- [ Logic Device ] --> " << device << std::endl;
-            delete device;
-        }
+        auto selectedGPU = *m_private->gpus.begin();
+        std::cout << "select GPU: " << selectedGPU.get()->DeviceName() << std::endl;
     }
 
     VKInstance::~VKInstance() = default;

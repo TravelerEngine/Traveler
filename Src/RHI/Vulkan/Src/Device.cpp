@@ -22,14 +22,14 @@ namespace RHI::Vulkan {
 
     class VKDevicePrivate {
     public:
-        VKGpu* m_GPU;
+        VKGpu& m_GPU;
         uint32_t graphicsQueueFamilyIndex;
         std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
         std::vector<std::shared_ptr<VKQueue>> graphicsQueues;
         std::vector<vk::CommandPool> pools;
         vk::Device vkDevice;
 
-        explicit VKDevicePrivate(VKGpu* GPU)
+        explicit VKDevicePrivate(VKGpu& GPU)
             : m_GPU(GPU)
         {
             CreateDevice();
@@ -44,7 +44,7 @@ namespace RHI::Vulkan {
         {
             vk::Result result;
 
-            auto physicalDevice {m_GPU->GetVkPhysicalDevice()};
+            auto physicalDevice {m_GPU.GetVkPhysicalDevice()};
             queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
 
             assert(!queueFamilyProperties.empty());
@@ -89,7 +89,7 @@ namespace RHI::Vulkan {
         }
     };
 
-    VKDevice::VKDevice(VKGpu* GPU)
+    VKDevice::VKDevice(VKGpu& GPU)
         : m_private(std::make_unique<VKDevicePrivate>(GPU))
     {}
     VKDevice::~VKDevice() = default;

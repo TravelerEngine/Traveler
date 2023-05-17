@@ -11,7 +11,7 @@ namespace RHI::Vulkan {
         std::unique_ptr<VKDevicePrivate> m_private;
 
     public:
-        explicit VKDevice(VKGpu* GPU);
+        explicit VKDevice(VKGpu& GPU);
         ~VKDevice();
     };
 } // namespace RHI::Vulkan

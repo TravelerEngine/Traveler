@@ -16,7 +16,9 @@ namespace RHI::Vulkan {
         explicit VKGpu(VKInstance* instance, vk::PhysicalDevice device);
         ~VKGpu() override;
 
-        VKDevice* CreateDevice();
+        std::shared_ptr<VKDevice> CreateDevice();
+
+        std::string DeviceName() const;
 
         const vk::PhysicalDevice& GetVkPhysicalDevice() const;
     };
