@@ -2,6 +2,7 @@
 
 #include <RHI/Instance.h>
 #include <vulkan/vulkan.hpp>
+#include <RHI/Vulkan/Api.h>
 
 #include <memory>
 
@@ -26,3 +27,7 @@ namespace RHI::Vulkan {
         std::vector<LayerProperties> GetLayerProperties();
     };
 } // namespace RHI::Vulkan
+
+extern "C" {
+    RHI_VULKAN_API RHI::Instance* RHIGetInstance();
+}
