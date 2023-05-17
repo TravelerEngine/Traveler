@@ -12,7 +12,12 @@ namespace RHI::Vulkan {
         "VK_KHR_portability_subset"
 #endif
     };
-    const std::vector<const char*> layers {"VK_LAYER_KHRONOS_validation"};
+
+    const std::vector<const char*> layers {
+#ifdef ENABLE_VALIDATION_LAYERS
+        "VK_LAYER_KHRONOS_validation"
+#endif
+    };
 
     class VKDevicePrivate {
     public:

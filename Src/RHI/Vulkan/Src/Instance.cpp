@@ -15,7 +15,12 @@ namespace RHI::Vulkan {
         VK_KHR_SURFACE_EXTENSION_NAME,
         "VK_KHR_portability_enumeration",
     };
-    std::vector<const char*> enabledLayers {"VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_api_dump"};
+    std::vector<const char*> enabledLayers {
+#ifdef ENABLE_VALIDATION_LAYERS
+        "VK_LAYER_KHRONOS_validation",
+        "VK_LAYER_LUNARG_api_dump"
+#endif
+    };
 
     class VKInstancePrivate {
         VKInstance* parent;
@@ -103,23 +108,21 @@ namespace RHI::Vulkan {
 
         vk::Result EnumeratePhysicalDevice()
         {
-            vk::Result result;
-            uint32_t count = 0;
-            result = instance->enumeratePhysicalDevices(&count, nullptr);
-            physicalDevices.resize(count);
-            result = instance->enumeratePhysicalDevices(&count, physicalDevices.data());
+            auto devices = instance->enumeratePhysicalDevices();
+            if (devices.empty()) {
+                return vk::Result::eErrorDeviceLost;
+            }
 
-            gpus.resize(count);
-            std::transform(physicalDevices.begin(), physicalDevices.end(), gpus.begin(), [this](vk::PhysicalDevice device) {
+            gpus.resize(devices.size());
+            std::transform(devices.begin(), devices.end(), gpus.begin(), [this](vk::PhysicalDevice device) {
                 return std::make_shared<VKGpu>(parent, device);
             });
 
-            return result;
+            return vk::Result::eSuccess;
         }
 
         std::shared_ptr<vk::Instance> instance;
         std::vector<LayerProperties> layerProperties;
-        std::vector<vk::PhysicalDevice> physicalDevices;
         std::vector<std::shared_ptr<VKGpu>> gpus;
     };
 
@@ -130,11 +133,13 @@ namespace RHI::Vulkan {
         m_private->EnumeratePhysicalDevice();
 
         std::cout << "============" << std::endl;
-        std::cout << "    dump    " << std::endl;
+        std::cout << "dump gpu info" << std::endl;
+        std::cout << "============" << std::endl;
         std::cout << "GPUs: " << m_private->gpus.size() << std::endl;
         for (const auto& gpu : m_private->gpus) {
             auto* device {gpu->CreateDevice()};
-            std::cout << "\t" << device;
+            std::cout << "\t|-- [ Logic Device ] --> " << device << std::endl;
+            delete device;
         }
     }
 

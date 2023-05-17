@@ -15,3 +15,9 @@ add_definitions(-DCOMPILER_APPLE_CLANG=$<IF:$<CXX_COMPILER_ID:AppleClang>,1,0>)
 add_definitions(-DCOMPILER_GCC=$<IF:$<CXX_COMPILER_ID:GNU>,1,0>)
 
 add_definitions(-DBUILD_EDITOR=$<BOOL:BUILD_EDITOR>)
+
+option(ENABLE_VALIDATION_LAYER "enable valid layer" OFF)
+
+if (ENABLE_VALIDATION_LAYER)
+    add_definitions(-DENABLE_VALIDATION_LAYER)
+endif()
