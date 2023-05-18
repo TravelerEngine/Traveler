@@ -1,17 +1,19 @@
 #include "RHI/Vulkan/Surface.h"
+#include "RHI/Vulkan/Device.h"
 
 namespace RHI::Vulkan {
-    class SurfacePrivate {
+    class VKSurfacePrivate {
+    public:
         std::shared_ptr<VKDevice> device;
-        explicit SurfacePrivate(std::shared_ptr<VKDevice> device)
+        explicit VKSurfacePrivate(std::shared_ptr<VKDevice> device)
             : device(std::move(device))
         {}
 
-        ~SurfacePrivate() = default;
+        ~VKSurfacePrivate() = default;
     };
-    Surface::Surface(std::shared_ptr<VKDevice> device)
-        : m_private(std::make_shared<SurfacePrivate>(std::move(device)))
+    VKSurface::VKSurface(std::shared_ptr<VKDevice> device)
+        : m_private(std::make_shared<VKSurfacePrivate>(std::move(device)))
     {}
-    Surface::~Surface() = default;
+    VKSurface::~VKSurface() = default;
 
 } // namespace RHI::Vulkan

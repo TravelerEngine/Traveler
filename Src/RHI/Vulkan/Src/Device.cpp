@@ -2,7 +2,7 @@
 
 #include "RHI/Vulkan/Gpu.h"
 #include "RHI/Vulkan/Queue.h"
-#include "vulkan/vulkan_structs.hpp"
+#include "RHI/Vulkan/Surface.h"
 
 #include <iostream>
 
@@ -22,15 +22,15 @@ namespace RHI::Vulkan {
 
     class VKDevicePrivate {
     public:
-        VKGpu& m_GPU;
+        std::shared_ptr<VKGpu> m_GPU;
         uint32_t graphicsQueueFamilyIndex;
         std::vector<vk::QueueFamilyProperties> queueFamilyProperties;
         std::vector<std::shared_ptr<VKQueue>> graphicsQueues;
         std::vector<vk::CommandPool> pools;
         vk::Device vkDevice;
 
-        explicit VKDevicePrivate(VKGpu& GPU)
-            : m_GPU(GPU)
+        explicit VKDevicePrivate(std::shared_ptr<VKGpu> GPU)
+            : m_GPU(std::move(GPU))
         {
             CreateDevice();
         }
@@ -44,7 +44,7 @@ namespace RHI::Vulkan {
         {
             vk::Result result;
 
-            auto physicalDevice {m_GPU.GetVkPhysicalDevice()};
+            auto physicalDevice {m_GPU->GetVkPhysicalDevice()};
             queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
 
             assert(!queueFamilyProperties.empty());
@@ -89,8 +89,18 @@ namespace RHI::Vulkan {
         }
     };
 
-    VKDevice::VKDevice(VKGpu& GPU)
-        : m_private(std::make_unique<VKDevicePrivate>(GPU))
+    VKDevice::VKDevice(std::shared_ptr<VKGpu> GPU)
+        : m_private(std::make_unique<VKDevicePrivate>(std::move(GPU)))
     {}
     VKDevice::~VKDevice() = default;
+
+    vk::Device VKDevice::GetDevice() const
+    {
+        return m_private->vkDevice;
+    }
+
+    std::shared_ptr<VKSurface> VKDevice::CreateSurface()
+    {
+        return VKSurface::Create(shared_from_this());
+    }
 } // namespace RHI::Vulkan

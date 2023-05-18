@@ -6,12 +6,17 @@
 
 namespace RHI::Vulkan {
     class VKDevice;
-    class SurfacePrivate;
-    class Surface {
-        std::shared_ptr<SurfacePrivate> m_private;
+    class VKSurfacePrivate;
+    class VKSurface {
+        std::shared_ptr<VKSurfacePrivate> m_private;
+
+        explicit VKSurface(std::shared_ptr<VKDevice> device);
 
     public:
-        explicit Surface(std::shared_ptr<VKDevice> device);
-        ~Surface();
+        [[nodiscard]] static std::shared_ptr<VKSurface> Create(std::shared_ptr<VKDevice> device)
+        {
+            return std::shared_ptr<VKSurface>(new VKSurface(std::move(device)));
+        }
+        ~VKSurface();
     };
 } // namespace RHI::Vulkan

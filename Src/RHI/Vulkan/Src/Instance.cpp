@@ -115,7 +115,7 @@ namespace RHI::Vulkan {
 
             gpus.resize(devices.size());
             std::transform(devices.begin(), devices.end(), gpus.begin(), [this](vk::PhysicalDevice device) {
-                return std::make_shared<VKGpu>(parent, device);
+                return VKGpu::Create(parent, device);
             });
 
             return vk::Result::eSuccess;
@@ -132,7 +132,7 @@ namespace RHI::Vulkan {
         m_private->CreateInstance();
         m_private->EnumeratePhysicalDevice();
         auto selectedGPU = *m_private->gpus.begin();
-        std::cout << "select GPU: " << selectedGPU.get()->DeviceName() << std::endl;
+        std::cout << "select GPU: " << selectedGPU->DeviceName() << std::endl;
     }
 
     VKInstance::~VKInstance() = default;
