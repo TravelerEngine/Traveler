@@ -6,18 +6,22 @@
 namespace RHI::Vulkan {
     class VKSurfacePrivate {
     public:
-        std::shared_ptr<VKDevice> device;
+        std::shared_ptr<VKDevice> vkDevice;
         vk::SurfaceKHR vkSurface;
+        vk::SurfaceCapabilitiesKHR capabilities;
+
         explicit VKSurfacePrivate(std::shared_ptr<VKDevice> device, const SurfaceCreateInfo& info)
-            : device(std::move(device))
+            : vkDevice(std::move(device))
         {
-            vkSurface = CreateNativeSurface(*device->GetGPU()->GetInstance().GetInstance(), info);
+            auto instance = vkDevice->GetGPU()->GetInstance().GetInstance();
+            vkSurface = CreateNativeSurface(*instance, info);
+            capabilities = vkDevice->GetGPU()->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR(vkSurface);
         }
 
         ~VKSurfacePrivate()
         {
             if (vkSurface) {
-                device->GetGPU()->GetInstance().GetInstance()->destroySurfaceKHR(vkSurface);
+                vkDevice->GetGPU()->GetInstance().GetInstance()->destroySurfaceKHR(vkSurface);
             }
         }
     };
@@ -31,6 +35,11 @@ namespace RHI::Vulkan {
     vk::SurfaceKHR VKSurface::GetSurface() const
     {
         return m_private->vkSurface;
+    }
+
+    vk::SurfaceCapabilitiesKHR VKSurface::GetCapabilitiesKHR() const
+    {
+        return m_private->capabilities;
     }
 
 } // namespace RHI::Vulkan

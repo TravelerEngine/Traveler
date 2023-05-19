@@ -25,5 +25,6 @@ namespace RHI::Vulkan {
         ~VKSurface() override;
 
         vk::SurfaceKHR GetSurface() const;
+        vk::SurfaceCapabilitiesKHR GetCapabilitiesKHR() const;
     };
 } // namespace RHI::Vulkan

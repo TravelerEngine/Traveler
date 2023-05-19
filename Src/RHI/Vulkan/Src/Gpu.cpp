@@ -13,12 +13,12 @@
 namespace RHI::Vulkan {
     class VKGpuPrivate {
     public:
-        VKInstance* instance;
-        vk::PhysicalDevice device;
+        VKInstance* vkInstance;
+        vk::PhysicalDevice vkPhysicalDevice;
 
         explicit VKGpuPrivate(VKInstance* instance, vk::PhysicalDevice device)
-            : instance(instance)
-            , device(device)
+            : vkInstance(instance)
+            , vkPhysicalDevice(device)
         {
         }
 
@@ -39,17 +39,17 @@ namespace RHI::Vulkan {
 
     const vk::PhysicalDevice& VKGpu::GetVkPhysicalDevice() const
     {
-        return m_private->device;
+        return m_private->vkPhysicalDevice;
     }
 
     std::string VKGpu::DeviceName() const
     {
-        auto props = m_private->device.getProperties();
+        auto props = m_private->vkPhysicalDevice.getProperties();
         return props.deviceName;
     }
 
     VKInstance& VKGpu::GetInstance() const
     {
-        return *m_private->instance;
+        return *m_private->vkInstance;
     }
 } // namespace RHI::Vulkan

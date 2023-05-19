@@ -11,12 +11,19 @@
 #include <vector>
 
 namespace RHI::Vulkan {
-    std::vector<const char*> enabledExtensions {
+    std::vector<const char*> enabledExtensions
+    {
         VK_KHR_SURFACE_EXTENSION_NAME,
-        "VK_KHR_portability_enumeration",
+#if PLATFORM_WINDOWS
+            "VK_KHR_win32_surface",
+#elif PLATFORM_MACOS
+            "VK_MVK_macos_surface",
+            VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+            VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+#endif
     };
     std::vector<const char*> enabledLayers {
-#ifdef ENABLE_VALIDATION_LAYERS
+#ifdef ENABLE_VALIDATION_LAYER
         "VK_LAYER_KHRONOS_validation",
         "VK_LAYER_LUNARG_api_dump"
 #endif

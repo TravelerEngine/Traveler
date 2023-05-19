@@ -16,8 +16,8 @@ add_definitions(-DCOMPILER_GCC=$<IF:$<CXX_COMPILER_ID:GNU>,1,0>)
 
 add_definitions(-DBUILD_EDITOR=$<BOOL:BUILD_EDITOR>)
 
-option(ENABLE_VALIDATION_LAYER "enable valid layer" OFF)
-
+option(ENABLE_VALIDATION_LAYER "enable valid layer" ON)
+message(STATUS "ENABLE_VALIDATION_LAYER: ${ENABLE_VALIDATION_LAYER}")
 if (ENABLE_VALIDATION_LAYER)
     add_definitions(-DENABLE_VALIDATION_LAYER)
 endif()

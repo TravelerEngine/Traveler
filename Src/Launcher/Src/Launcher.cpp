@@ -5,6 +5,7 @@
 #include <RHI/Gpu.h>
 #include <RHI/Instance.h>
 #include <RHI/Surface.h>
+#include <RHI/SwapChain.h>
 
 #include <string>
 
@@ -64,6 +65,13 @@ namespace Main {
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         m_private->window = glfwCreateWindow(800, 600, "Traveler", nullptr, nullptr);
+#if PLATFORM_WINDOWS
+        void* window = glfwCreateWindow(m_private->window);
+#elif PLATFORM_MACOS
+        void* window = glfwGetCocoaWindow(m_private->window);
+#else
+        assert(false);
+#endif
 
         // TODO: 改成加载全部插件，使用插件类型判断 RHI 是否正确。
         RHI::Instance* instance = RHI::Instance::CreateByType(RHI);
@@ -76,9 +84,22 @@ namespace Main {
         auto selectedGPU = instance->GetGpu(0);
         std::cout << "select GPU: " << selectedGPU->DeviceName() << std::endl;
         auto device = selectedGPU->CreateDevice();
+
+        RHI::SurfaceCreateInfo surfaceCreateInfo;
+        surfaceCreateInfo.window = window;
+
+        auto surface = device->CreateSurface(surfaceCreateInfo);
+
+        RHI::SwapChainCreateInfo swapChainCreateInfo;
+        swapChainCreateInfo.surface = surface;
+
+        auto swapChain = device->CreateSwapChain(swapChainCreateInfo);
     }
 
-    Launcher::~Launcher() = default;
+    Launcher::~Launcher()
+    {
+        glfwDestroyWindow(m_private->window);
+    }
 
     int Launcher::Exec()
     {

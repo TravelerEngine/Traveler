@@ -3,19 +3,57 @@
 #include <RHI/Vulkan/Device.h>
 #include <RHI/Vulkan/Gpu.h>
 #include <RHI/Vulkan/Surface.h>
+#include <limits>
+#include <memory>
 
 namespace RHI::Vulkan {
     class VKSwapChainPrivate {
-        std::shared_ptr<VKDevice> device;
+        std::shared_ptr<VKDevice> vkDevice;
+        vk::SurfaceFormatKHR format;
+        vk::PresentModeKHR presentMode;
 
     public:
         explicit VKSwapChainPrivate(std::shared_ptr<VKDevice> device, SwapChainCreateInfo& info)
-            : device(std::move(device))
+            : vkDevice(std::move(device))
         {
-            auto surface = info.surface;
-            // device->GetGPU()->GetVkPhysicalDevice().getSurfaceCapabilitiesKHR();
+            auto vkPhysicalDevice = vkDevice->GetGPU()->GetVkPhysicalDevice();
+            auto surface = std::dynamic_pointer_cast<VKSurface>(info.surface);
+            format = chooseSwapSurfaceFormat(vkPhysicalDevice.getSurfaceFormatsKHR(surface->GetSurface()));
+            presentMode = chooseSwapPresentMode(vkPhysicalDevice.getSurfacePresentModesKHR(surface->GetSurface()));
+
+            vk::Extent2D extent {info.extent.width, info.extent.height};
+
+            vk::SwapchainCreateInfoKHR createInfo;
+            createInfo.setSurface(surface->GetSurface())
+                .setMinImageCount(surface->GetCapabilitiesKHR().minImageCount + 1)
+                .setImageFormat(format.format)
+                .setPresentMode(presentMode)
+                .setImageExtent(extent)
+                .setImageArrayLayers(1);
         }
+
         ~VKSwapChainPrivate() = default;
+
+        static vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats)
+        {
+            for (auto const format : formats) {
+                if (format.format == vk::Format::eB8G8R8A8Srgb && format.colorSpace == vk::ColorSpaceKHR::eVkColorspaceSrgbNonlinear) {
+                    return format;
+                }
+            }
+
+            return formats[0];
+        }
+
+        static vk::PresentModeKHR chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& presentModes)
+        {
+            for (auto const mode : presentModes) {
+                if (mode == vk::PresentModeKHR::eMailbox) {
+                    return mode;
+                }
+            }
+            return vk::PresentModeKHR::eFifo;
+        }
     };
 
     VKSwapChain::VKSwapChain(std::shared_ptr<VKDevice> device, SwapChainCreateInfo& info)
