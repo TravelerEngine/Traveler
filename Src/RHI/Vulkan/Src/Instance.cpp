@@ -131,8 +131,10 @@ namespace RHI::Vulkan {
     {
         m_private->CreateInstance();
         m_private->EnumeratePhysicalDevice();
+        // TODO: select the first GPU
         auto selectedGPU = *m_private->gpus.begin();
         std::cout << "select GPU: " << selectedGPU->DeviceName() << std::endl;
+        auto device = selectedGPU->CreateDevice();
     }
 
     VKInstance::~VKInstance() = default;

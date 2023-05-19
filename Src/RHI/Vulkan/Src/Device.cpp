@@ -81,7 +81,7 @@ namespace RHI::Vulkan {
             graphicsQueues.resize(queueCreateInfos.size());
             for (auto const& info : queueCreateInfos) {
                 vk::Queue graphicsQueue;
-                vkDevice.getQueue(info.queueFamilyIndex, info.queueCount, &graphicsQueue);
+                vkDevice.getQueue(info.queueFamilyIndex, info.queueCount - 1, &graphicsQueue);
                 graphicsQueues.emplace_back(std::make_shared<VKQueue>(graphicsQueue));
             }
 
