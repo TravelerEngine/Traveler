@@ -72,6 +72,9 @@ namespace Main {
 #else
         assert(false);
 #endif
+        int width;
+        int height;
+        glfwGetFramebufferSize(m_private->window, &width, &height);
 
         // TODO: 改成加载全部插件，使用插件类型判断 RHI 是否正确。
         RHI::Instance* instance = RHI::Instance::CreateByType(RHI);
@@ -92,9 +95,13 @@ namespace Main {
 
         RHI::SwapChainCreateInfo swapChainCreateInfo;
         swapChainCreateInfo.surface = surface;
+        swapChainCreateInfo.extent = {
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height),
+        };
 
         auto swapChain = device->CreateSwapChain(swapChainCreateInfo);
-    }
+    } // namespace Main
 
     Launcher::~Launcher()
     {
