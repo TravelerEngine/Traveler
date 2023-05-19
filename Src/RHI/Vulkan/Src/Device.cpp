@@ -3,14 +3,16 @@
 #include "RHI/Vulkan/Gpu.h"
 #include "RHI/Vulkan/Queue.h"
 #include "RHI/Vulkan/Surface.h"
+#include "RHI/Vulkan/SwapChain.h"
 
 #include <iostream>
 
 namespace RHI::Vulkan {
     const std::vector<const char*> extensions
     {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 #if PLATFORM_MACOS
-        "VK_KHR_portability_subset"
+            "VK_KHR_portability_subset",
 #endif
     };
 
@@ -32,6 +34,8 @@ namespace RHI::Vulkan {
         explicit VKDevicePrivate(std::shared_ptr<VKGpu> GPU)
             : m_GPU(std::move(GPU))
         {
+            // TODO: missing check extensions support
+
             CreateDevice();
         }
 
@@ -99,8 +103,28 @@ namespace RHI::Vulkan {
         return m_private->vkDevice;
     }
 
-    std::shared_ptr<Surface> VKDevice::CreateSurface()
+    std::shared_ptr<Surface> VKDevice::CreateSurface(SurfaceCreateInfo& info)
     {
-        return VKSurface::Create(shared_from_this());
+        return VKSurface::Create(shared_from_this(), info);
+    }
+
+    uint32_t VKDevice::GetQueueCount() const
+    {
+        return m_private->graphicsQueues.size();
+    }
+
+    std::shared_ptr<Queue> VKDevice::GetQueue(uint32_t index)
+    {
+        return m_private->graphicsQueues[index];
+    }
+
+    std::shared_ptr<SwapChain> VKDevice::CreateSwapChain(SwapChainCreateInfo& info)
+    {
+        return VKSwapChain::Create(shared_from_this(), info);
+    }
+
+    std::shared_ptr<VKGpu> VKDevice::GetGPU() const
+    {
+        return m_private->m_GPU;
     }
 } // namespace RHI::Vulkan

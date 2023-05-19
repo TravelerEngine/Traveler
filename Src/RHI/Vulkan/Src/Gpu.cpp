@@ -47,4 +47,9 @@ namespace RHI::Vulkan {
         auto props = m_private->device.getProperties();
         return props.deviceName;
     }
+
+    VKInstance& VKGpu::GetInstance() const
+    {
+        return *m_private->instance;
+    }
 } // namespace RHI::Vulkan

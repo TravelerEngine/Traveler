@@ -26,7 +26,7 @@ namespace RHI::Vulkan {
         uint32_t GetGpuCount() const override;
         std::shared_ptr<Gpu> GetGpu(uint32_t index) override;
 
-        std::shared_ptr<vk::Instance> GetInstance();
+        std::shared_ptr<vk::Instance> GetInstance() const;
     };
 } // namespace RHI::Vulkan
 

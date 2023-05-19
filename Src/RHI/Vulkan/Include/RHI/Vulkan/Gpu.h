@@ -24,5 +24,6 @@ namespace RHI::Vulkan {
         std::shared_ptr<Device> CreateDevice() override;
         std::string DeviceName() const override;
         const vk::PhysicalDevice& GetVkPhysicalDevice() const;
+        VKInstance& GetInstance() const;
     };
 } // namespace RHI::Vulkan

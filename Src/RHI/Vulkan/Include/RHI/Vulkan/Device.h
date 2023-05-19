@@ -21,8 +21,15 @@ namespace RHI::Vulkan {
             return std::shared_ptr<VKDevice>(new VKDevice(std::move(GPU)));
         }
         ~VKDevice() override;
-        std::shared_ptr<Surface> CreateSurface() override;
+
+        std::shared_ptr<Surface> CreateSurface(SurfaceCreateInfo& info) override;
+
+        uint32_t GetQueueCount() const override;
+        std::shared_ptr<Queue> GetQueue(uint32_t index) override;
+
+        std::shared_ptr<SwapChain> CreateSwapChain(SwapChainCreateInfo& info) override;
 
         vk::Device GetDevice() const;
+        std::shared_ptr<VKGpu> GetGPU() const;
     };
 } // namespace RHI::Vulkan

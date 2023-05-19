@@ -91,7 +91,7 @@ namespace RHI::Vulkan {
 
     VKInstance::~VKInstance() = default;
 
-    std::shared_ptr<vk::Instance> VKInstance::GetInstance()
+    std::shared_ptr<vk::Instance> VKInstance::GetInstance() const
     {
         return m_private->instance;
     }

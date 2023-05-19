@@ -7,6 +7,9 @@
 #include <memory>
 
 namespace RHI {
+    struct SurfaceCreateInfo {
+        void* window;
+    };
     class Surface {
     public:
         virtual ~Surface() = default;
