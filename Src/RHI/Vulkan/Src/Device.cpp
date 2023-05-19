@@ -99,7 +99,7 @@ namespace RHI::Vulkan {
         return m_private->vkDevice;
     }
 
-    std::shared_ptr<VKSurface> VKDevice::CreateSurface()
+    std::shared_ptr<Surface> VKDevice::CreateSurface()
     {
         return VKSurface::Create(shared_from_this());
     }

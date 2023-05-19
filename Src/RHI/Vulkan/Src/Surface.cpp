@@ -12,7 +12,7 @@ namespace RHI::Vulkan {
         ~VKSurfacePrivate() = default;
     };
     VKSurface::VKSurface(std::shared_ptr<VKDevice> device)
-        : m_private(std::make_shared<VKSurfacePrivate>(std::move(device)))
+        : m_private(std::make_unique<VKSurfacePrivate>(std::move(device)))
     {}
     VKSurface::~VKSurface() = default;
 

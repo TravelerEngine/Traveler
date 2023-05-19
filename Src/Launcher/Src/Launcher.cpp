@@ -28,7 +28,7 @@ namespace Main {
     };
 
     Launcher::Launcher(int argc, char* argv[])
-        : m_private(std::make_shared<LauncherPrivate>())
+        : m_private(std::make_unique<LauncherPrivate>())
     {
         po::options_description options("options");
         options.add_options()("help", "help")("rhi", po::value<std::string>(), "RHI Type");

@@ -5,7 +5,7 @@
 namespace Main {
     class LauncherPrivate;
     class Launcher {
-        std::shared_ptr<LauncherPrivate> m_private;
+        std::unique_ptr<LauncherPrivate> m_private;
 
     public:
         explicit Launcher(int argc, char* argv[]);

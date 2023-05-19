@@ -6,7 +6,6 @@
 #include <vulkan/vulkan.hpp>
 
 namespace RHI::Vulkan {
-    class VKDevice;
     class VKInstance;
     class VKGpuPrivate;
     class VKGpu : public Gpu
@@ -22,10 +21,8 @@ namespace RHI::Vulkan {
         }
         ~VKGpu() override;
 
-        std::shared_ptr<VKDevice> CreateDevice();
-
-        std::string DeviceName() const;
-
+        std::shared_ptr<Device> CreateDevice() override;
+        std::string DeviceName() const override;
         const vk::PhysicalDevice& GetVkPhysicalDevice() const;
     };
 } // namespace RHI::Vulkan

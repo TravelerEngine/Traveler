@@ -53,7 +53,7 @@ namespace RHI::Vulkan {
 
     VKGpu::~VKGpu() = default;
 
-    std::shared_ptr<VKDevice> VKGpu::CreateDevice()
+    std::shared_ptr<Device> VKGpu::CreateDevice()
     {
         return VKDevice::Create(shared_from_this());
     }

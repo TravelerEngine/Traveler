@@ -1,14 +1,16 @@
 #pragma once
 
+#include "RHI/Device.h"
+
 #include <vulkan/vulkan.hpp>
 
 #include <memory>
 
 namespace RHI::Vulkan {
     class VKGpu;
-    class VKSurface;
     class VKDevicePrivate;
-    class VKDevice : public std::enable_shared_from_this<VKDevice> {
+    class VKDevice : public Device
+        , public std::enable_shared_from_this<VKDevice> {
         std::unique_ptr<VKDevicePrivate> m_private;
 
         explicit VKDevice(std::shared_ptr<VKGpu> GPU);
@@ -18,9 +20,9 @@ namespace RHI::Vulkan {
         {
             return std::shared_ptr<VKDevice>(new VKDevice(std::move(GPU)));
         }
-        ~VKDevice();
+        ~VKDevice() override;
+        std::shared_ptr<Surface> CreateSurface() override;
 
         vk::Device GetDevice() const;
-        std::shared_ptr<VKSurface> CreateSurface();
     };
 } // namespace RHI::Vulkan
