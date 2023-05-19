@@ -29,54 +29,11 @@ namespace RHI::Vulkan {
         explicit VKInstancePrivate(VKInstance* instance)
             : parent(instance)
         {
-            uint32_t instanceLayerCount = 0;
-            vk::Result result;
-
-            result = vk::enumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
-            assert(result == vk::Result::eSuccess);
-
-            std::vector<vk::LayerProperties> instanceLayers(instanceLayerCount);
-            result = vk::enumerateInstanceLayerProperties(&instanceLayerCount, instanceLayers.data());
-            assert(result == vk::Result::eSuccess);
-
-            std::cout << "Instanced Layers" << std::endl;
-            std::cout << "=================" << std::endl;
-
-            for (auto& layerProperty : instanceLayers) {
-                LayerProperties layerProps;
-                layerProps.properties = layerProperty;
-
-                std::cout << layerProperty.description << std::endl
-                          << "\t|\n\t|---[Layer Name]--> " << layerProperty.layerName << std::endl;
-
-                result = GetExtensionProperties(layerProps);
-                layerProperties.push_back(layerProps);
-            }
         }
 
         ~VKInstancePrivate()
         {
             instance->destroy();
-        }
-
-        static vk::Result GetExtensionProperties(LayerProperties& layerProperties)
-        {
-            uint32_t extensionCount = 0;
-            vk::Result result;
-            result = vk::enumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-            assert(result == vk::Result::eSuccess);
-
-            std::vector<vk::ExtensionProperties> extensions(extensionCount);
-            result = vk::enumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-            assert(result == vk::Result::eSuccess);
-
-            layerProperties.extensions = extensions;
-            for (auto ext : extensions) {
-                std::cout << "\t\t|" << std::endl
-                          << "\t\t|---[Layer Extension]--> " << ext.extensionName << std::endl;
-            }
-
-            return result;
         }
 
         void CreateInstance()
@@ -122,7 +79,6 @@ namespace RHI::Vulkan {
         }
 
         std::shared_ptr<vk::Instance> instance;
-        std::vector<LayerProperties> layerProperties;
         std::vector<std::shared_ptr<VKGpu>> gpus;
     };
 
@@ -131,10 +87,6 @@ namespace RHI::Vulkan {
     {
         m_private->CreateInstance();
         m_private->EnumeratePhysicalDevice();
-        // TODO: select the first GPU
-        auto selectedGPU = *m_private->gpus.begin();
-        std::cout << "select GPU: " << selectedGPU->DeviceName() << std::endl;
-        auto device = selectedGPU->CreateDevice();
     }
 
     VKInstance::~VKInstance() = default;
@@ -144,9 +96,15 @@ namespace RHI::Vulkan {
         return m_private->instance;
     }
 
-    std::vector<LayerProperties> VKInstance::GetLayerProperties()
+    uint32_t VKInstance::GetGpuCount() const
     {
-        return m_private->layerProperties;
+        return m_private->gpus.size();
+    }
+
+    std::shared_ptr<Gpu> VKInstance::GetGpu(uint32_t index)
+    {
+        // FIXME: not check size.
+        return m_private->gpus[index];
     }
 } // namespace RHI::Vulkan
 

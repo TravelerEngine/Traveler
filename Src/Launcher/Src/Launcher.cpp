@@ -1,7 +1,10 @@
 #include "Launcher/Launcher.h"
 
 #include <RHI/Common.h>
+#include <RHI/Device.h>
+#include <RHI/Gpu.h>
 #include <RHI/Instance.h>
+#include <RHI/Surface.h>
 
 #include <string>
 
@@ -62,12 +65,17 @@ namespace Main {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         m_private->window = glfwCreateWindow(800, 600, "Traveler", nullptr, nullptr);
 
-        std::cout << "Init RHI: " << RHI << std::endl;
-
         // TODO: 改成加载全部插件，使用插件类型判断 RHI 是否正确。
         RHI::Instance* instance = RHI::Instance::CreateByType(RHI);
-        std::cout << instance << std::endl;
-        std::cout << RHI::ToString(instance->GetRHIType()) << std::endl;
+        std::cout << "Init RHI: " << RHI::ToString(instance->GetRHIType()) << std::endl;
+
+        const uint32_t gpusCount = instance->GetGpuCount();
+        assert(gpusCount > 0);
+
+        // TODO: select the first GPU
+        auto selectedGPU = instance->GetGpu(0);
+        std::cout << "select GPU: " << selectedGPU->DeviceName() << std::endl;
+        auto device = selectedGPU->CreateDevice();
     }
 
     Launcher::~Launcher() = default;

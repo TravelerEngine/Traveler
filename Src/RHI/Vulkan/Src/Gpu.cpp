@@ -20,27 +20,6 @@ namespace RHI::Vulkan {
             : instance(instance)
             , device(device)
         {
-            GetExtensionProperties();
-        }
-
-        vk::Result GetExtensionProperties() const
-        {
-            std::cout << "Devices extensions" << std::endl;
-            std::cout << "================" << std::endl;
-
-            vk::Result result;
-            for (const auto& props : instance->GetLayerProperties()) {
-                auto properties = device.enumerateDeviceExtensionProperties();
-                std::cout << props.properties.description << std::endl
-                          << "\t|\n\t|---[Layer Name]--> " << props.properties.layerName << std::endl;
-
-                for (auto ext : properties) {
-                    std::cout << "\t\t|" << std::endl
-                              << "\t\t|---[Layer Extension]--> " << ext.extensionName << std::endl;
-                }
-            }
-
-            return result;
         }
 
         ~VKGpuPrivate() = default;

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <RHI/Instance.h>
-#include <vulkan/vulkan.hpp>
 #include <RHI/Vulkan/Api.h>
+#include <vulkan/vulkan.hpp>
 
 #include <memory>
 
@@ -23,11 +23,13 @@ namespace RHI::Vulkan {
             return RHIType::Vulkan;
         }
 
+        uint32_t GetGpuCount() const override;
+        std::shared_ptr<Gpu> GetGpu(uint32_t index) override;
+
         std::shared_ptr<vk::Instance> GetInstance();
-        std::vector<LayerProperties> GetLayerProperties();
     };
 } // namespace RHI::Vulkan
 
 extern "C" {
-    RHI_VULKAN_API RHI::Instance* RHIGetInstance();
+RHI_VULKAN_API RHI::Instance* RHIGetInstance();
 }
