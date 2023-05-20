@@ -66,7 +66,7 @@ namespace Main {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         m_private->window = glfwCreateWindow(800, 600, "Traveler", nullptr, nullptr);
 #if PLATFORM_WINDOWS
-        void* window = glfwCreateWindow(m_private->window);
+        void* window = glfwGetWin32Window(m_private->window);
 #elif PLATFORM_MACOS
         void* window = glfwGetCocoaWindow(m_private->window);
 #else

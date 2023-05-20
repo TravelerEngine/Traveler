@@ -4,6 +4,7 @@
 
 #if PLATFORM_WINDOWS
     #include <RHI/SwapChain.h>
+    #include <RHI/Surface.h>
     #include <Windows.h>
     #define VK_USE_PLATFORM_WIN32_KHR
     #include <vulkan/vulkan.hpp>
@@ -13,7 +14,7 @@ namespace RHI::Vulkan {
     {
         vk::Win32SurfaceCreateInfoKHR surfaceInfo {};
         surfaceInfo.setHwnd((HWND) createInfo.window)
-            .setHinstance(GetModuleHandle(0));
+            .setHinstance(GetModuleHandle(nullptr));
         vk::SurfaceKHR surface = VK_NULL_HANDLE;
         assert(instance.createWin32SurfaceKHR(&surfaceInfo, nullptr, &surface) == vk::Result::eSuccess);
         return surface;
