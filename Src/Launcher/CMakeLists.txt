@@ -1,4 +1,5 @@
 find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(glfw3 REQUIRED)
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     set(PLATFORM_EXT_LIBS

@@ -35,7 +35,7 @@ namespace Main {
         : m_private(std::make_unique<LauncherPrivate>())
     {
         po::options_description options("options");
-        options.add_options()("help", "help")("rhi", po::value<std::string>(), "RHI Type");
+        options.add_options()("help", "help")("rhi", po::value<std::string>()->default_value("auto"), "RHI Type");
 
         po::variables_map vm;
         po::store(po::parse_command_line(argc, argv, options), vm);
@@ -43,11 +43,6 @@ namespace Main {
 
         if (vm.count("help") != 0) {
             std::cout << options << std::endl;
-            return;
-        }
-
-        if (vm.count("RHI") != 0) {
-            std::cout << "RHI Type is not set" << std::endl;
             return;
         }
 
