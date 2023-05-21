@@ -11,6 +11,7 @@ namespace RHI::Vulkan {
         std::shared_ptr<VKDevice> vkDevice;
         vk::SurfaceFormatKHR format;
         vk::PresentModeKHR presentMode;
+        vk::SwapchainKHR vkSwapChainKHR;
 
     public:
         explicit VKSwapChainPrivate(std::shared_ptr<VKDevice> device, SwapChainCreateInfo& info)
@@ -24,16 +25,26 @@ namespace RHI::Vulkan {
             vk::Extent2D extent {info.extent.width, info.extent.height};
 
             vk::SwapchainCreateInfoKHR createInfo;
-            createInfo.setSurface(surface->GetSurface())
+            createInfo
+                .setSurface(surface->GetSurface())
                 .setMinImageCount(surface->GetCapabilitiesKHR().minImageCount + 1)
                 .setImageFormat(format.format)
                 .setPresentMode(presentMode)
+                .setClipped(1u)
+                .setPreTransform(surface->GetCapabilitiesKHR().currentTransform)
+                .setImageSharingMode(vk::SharingMode::eExclusive)
                 .setImageExtent(extent)
-                .setImageArrayLayers(1);
+                .setImageArrayLayers(1)
+                .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
+                .setOldSwapchain(nullptr);
+            assert(vkDevice->GetDevice().createSwapchainKHR(&createInfo, nullptr, &vkSwapChainKHR) != vk::Result::eSuccess);
         }
 
-        ~VKSwapChainPrivate() = default;
-
+        ~VKSwapChainPrivate()
+        {
+            vkDevice->GetDevice().destroySwapchainKHR(vkSwapChainKHR);
+        }
+        
         static vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats)
         {
             for (auto const format : formats) {
