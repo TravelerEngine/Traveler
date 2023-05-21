@@ -8,7 +8,7 @@
 #include <iostream>
 
 namespace RHI::Vulkan {
-    const std::vector<const char*> extensions
+    const std::vector<const char*> enabledExtensions
     {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 #if PLATFORM_MACOS
@@ -16,8 +16,8 @@ namespace RHI::Vulkan {
 #endif
     };
 
-    const std::vector<const char*> layers {
-#ifdef ENABLE_VALIDATION_LAYERS
+    const std::vector<const char*> validationLayers {
+#ifdef ENABLE_VALIDATION_LAYER
         "VK_LAYER_KHRONOS_validation"
 #endif
     };
@@ -34,8 +34,6 @@ namespace RHI::Vulkan {
         explicit VKDevicePrivate(std::shared_ptr<VKGpu> GPU)
             : m_GPU(std::move(GPU))
         {
-            // TODO: missing check extensions support
-
             CreateDevice();
         }
 
@@ -68,6 +66,15 @@ namespace RHI::Vulkan {
 
             assert(!queueCreateInfos.empty());
 
+            std::vector<const char*> enabledLayers;
+            for (auto const& props : physicalDevice.enumerateDeviceLayerProperties()) {
+                for (auto const& layer : validationLayers) {
+                    if (props.layerName == layer) {
+                        enabledLayers.push_back(layer);
+                    }
+                }
+            }
+
             vk::PhysicalDeviceFeatures deviceFeatures;
 
             vk::DeviceCreateInfo deviceCreateInfo;
@@ -75,10 +82,10 @@ namespace RHI::Vulkan {
                 .setPEnabledFeatures(&deviceFeatures)
                 .setQueueCreateInfoCount(queueCreateInfos.size())
                 .setPQueueCreateInfos(queueCreateInfos.data())
-                .setEnabledExtensionCount(extensions.size())
-                .setPpEnabledExtensionNames(extensions.data())
-                .setEnabledLayerCount(layers.size())
-                .setPpEnabledLayerNames(layers.data());
+                .setEnabledExtensionCount(enabledExtensions.size())
+                .setPpEnabledExtensionNames(enabledExtensions.data())
+                .setEnabledLayerCount(enabledLayers.size())
+                .setPpEnabledLayerNames(enabledLayers.data());
 
             assert(physicalDevice.createDevice(&deviceCreateInfo, nullptr, &vkDevice) == vk::Result::eSuccess);
 

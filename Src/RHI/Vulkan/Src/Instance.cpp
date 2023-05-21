@@ -23,7 +23,7 @@ namespace RHI::Vulkan {
             VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 #endif
     };
-    std::vector<const char*> enabledLayers {
+    std::vector<const char*> validationLayers {
 #ifdef ENABLE_VALIDATION_LAYER
         "VK_LAYER_KHRONOS_validation",
         "VK_LAYER_LUNARG_api_dump"
@@ -51,18 +51,11 @@ namespace RHI::Vulkan {
             uint32_t instanceLayerCount = 0;
             vk::Result result;
 
-            result = vk::enumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
-            assert(result == vk::Result::eSuccess);
-
-            std::vector<vk::LayerProperties> instanceLayers(instanceLayerCount);
-            result = vk::enumerateInstanceLayerProperties(&instanceLayerCount, instanceLayers.data());
-            assert(result == vk::Result::eSuccess);
-
-            std::vector<const char*> filterEnabledLayers;
-            for (auto const& layer : instanceLayers) {
-                for (auto const& name : enabledLayers) {
+            std::vector<const char*> enabledLayers;
+            for (auto const& layer : vk::enumerateInstanceLayerProperties()) {
+                for (auto const& name : validationLayers) {
                     if (layer.layerName == name) {
-                        filterEnabledLayers.push_back(name);
+                        enabledLayers.push_back(name);
                     }
                 }
             }
@@ -76,8 +69,8 @@ namespace RHI::Vulkan {
                 vk::InstanceCreateFlags(),
 #endif
                     &applicationInfo,
-                    static_cast<uint32_t>(filterEnabledLayers.size()),
-                    filterEnabledLayers.data(),
+                    static_cast<uint32_t>(enabledLayers.size()),
+                    enabledLayers.data(),
                     static_cast<uint32_t>(enabledExtensions.size()),
                     enabledExtensions.data(),
                     nullptr

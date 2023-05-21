@@ -57,6 +57,10 @@ namespace Main {
 #endif
         }
 
+        // TODO: 改成加载全部插件，使用插件类型判断 RHI 是否正确。
+        RHI::Instance* instance = RHI::Instance::CreateByType(RHI);
+        std::cout << "Init RHI: " << RHI::ToString(instance->GetRHIType()) << std::endl;
+
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         m_private->window = glfwCreateWindow(800, 600, "Traveler", nullptr, nullptr);
@@ -70,10 +74,6 @@ namespace Main {
         int width;
         int height;
         glfwGetFramebufferSize(m_private->window, &width, &height);
-
-        // TODO: 改成加载全部插件，使用插件类型判断 RHI 是否正确。
-        RHI::Instance* instance = RHI::Instance::CreateByType(RHI);
-        std::cout << "Init RHI: " << RHI::ToString(instance->GetRHIType()) << std::endl;
 
         const uint32_t gpusCount = instance->GetGpuCount();
         assert(gpusCount > 0);
