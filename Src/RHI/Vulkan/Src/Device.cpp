@@ -16,11 +16,10 @@ namespace RHI::Vulkan {
 #endif
     };
 
-    const std::vector<const char*> validationLayers {
 #ifdef ENABLE_VALIDATION_LAYER
-        "VK_LAYER_KHRONOS_validation"
+    const std::vector<const char*> validationLayers {
+        "VK_LAYER_KHRONOS_validation"};
 #endif
-    };
 
     class VKDevicePrivate {
     public:
@@ -67,13 +66,26 @@ namespace RHI::Vulkan {
             assert(!queueCreateInfos.empty());
 
             std::vector<const char*> enabledLayers;
-            for (auto const& props : physicalDevice.enumerateDeviceLayerProperties()) {
-                for (auto const& layer : validationLayers) {
-                    if (props.layerName == layer) {
-                        enabledLayers.push_back(layer);
+#ifdef ENABLE_VALIDATION_LAYER
+            std::cout << "Device Layers info" << std::endl;
+            std::cout << "============" << std::endl;
+            for (auto const& layer : physicalDevice.enumerateDeviceLayerProperties()) {
+                std::cout << "\t|" << std::endl;
+                std::cout << "\t|--[Layer Name]--> " << layer.layerName << std::endl;
+                std::cout << "\t|--[Layer Description]--> " << layer.description << std::endl;
+                for (auto const& name : validationLayers) {
+                    if (layer.layerName == name) {
+                        enabledLayers.push_back(name);
                     }
                 }
             }
+            std::cout << "Device Extensions info" << std::endl;
+            std::cout << "============" << std::endl;
+            for (auto const& extension : physicalDevice.enumerateDeviceExtensionProperties()) {
+                std::cout << "\t|" << std::endl
+                          << "\t|---[Extension]--> " << extension.extensionName << std::endl;
+            }
+#endif
 
             vk::PhysicalDeviceFeatures deviceFeatures;
 

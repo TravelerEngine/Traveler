@@ -3,6 +3,7 @@
 #include "RHI/Vulkan/Common.h"
 #include "RHI/Vulkan/Device.h"
 #include "RHI/Vulkan/Gpu.h"
+#include "vulkan/vulkan_handles.hpp"
 
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_enums.hpp>
@@ -23,13 +24,12 @@ namespace RHI::Vulkan {
             VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 #endif
     };
-    std::vector<const char*> validationLayers {
 #ifdef ENABLE_VALIDATION_LAYER
+    std::vector<const char*> validationLayers {
         "VK_LAYER_KHRONOS_validation",
-        "VK_LAYER_LUNARG_api_dump"
+        "VK_LAYER_LUNARG_api_dump"};
 #endif
-    };
-    
+
     class VKInstancePrivate {
         VKInstance* parent;
 
@@ -52,13 +52,26 @@ namespace RHI::Vulkan {
             vk::Result result;
 
             std::vector<const char*> enabledLayers;
+#ifdef ENABLE_VALIDATION_LAYER
+            std::cout << "Instance Layers info" << std::endl;
+            std::cout << "============" << std::endl;
             for (auto const& layer : vk::enumerateInstanceLayerProperties()) {
+                std::cout << "\t|" << std::endl;
+                std::cout << "\t|--[Layer Name]--> " << layer.layerName << std::endl;
+                std::cout << "\t|--[Layer Description]--> " << layer.description << std::endl;
                 for (auto const& name : validationLayers) {
                     if (layer.layerName == name) {
                         enabledLayers.push_back(name);
                     }
                 }
             }
+            std::cout << "Instance Extensions info" << std::endl;
+            std::cout << "============" << std::endl;
+            for (auto const& extension : vk::enumerateInstanceExtensionProperties()) {
+                std::cout << "\t|" << std::endl
+                          << "\t|---[Extension]--> " << extension.extensionName << std::endl;
+            }
+#endif
 
             vk::InstanceCreateInfo createInfo
             {
@@ -83,7 +96,8 @@ namespace RHI::Vulkan {
             this->instance = std::make_shared<vk::Instance>(instance);
         }
 
-        vk::Result EnumeratePhysicalDevice()
+        vk::Result
+        EnumeratePhysicalDevice()
         {
             auto devices = instance->enumeratePhysicalDevices();
             if (devices.empty()) {
