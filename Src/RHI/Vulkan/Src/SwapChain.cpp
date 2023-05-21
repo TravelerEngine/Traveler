@@ -3,6 +3,8 @@
 #include <RHI/Vulkan/Device.h>
 #include <RHI/Vulkan/Gpu.h>
 #include <RHI/Vulkan/Surface.h>
+#include <RHI/Vulkan/Queue.h>
+
 #include <limits>
 #include <memory>
 
@@ -29,15 +31,17 @@ namespace RHI::Vulkan {
                 .setSurface(surface->GetSurface())
                 .setMinImageCount(surface->GetCapabilitiesKHR().minImageCount + 1)
                 .setImageFormat(format.format)
+                .setImageColorSpace(vk::ColorSpaceKHR::eVkColorspaceSrgbNonlinear)
                 .setPresentMode(presentMode)
                 .setClipped(1u)
                 .setPreTransform(surface->GetCapabilitiesKHR().currentTransform)
+                .setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque)
                 .setImageSharingMode(vk::SharingMode::eExclusive)
                 .setImageExtent(extent)
                 .setImageArrayLayers(1)
                 .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
                 .setOldSwapchain(nullptr);
-            assert(vkDevice->GetDevice().createSwapchainKHR(&createInfo, nullptr, &vkSwapChainKHR) != vk::Result::eSuccess);
+            assert(vkDevice->GetDevice().createSwapchainKHR(&createInfo, nullptr, &vkSwapChainKHR) == vk::Result::eSuccess);
         }
 
         ~VKSwapChainPrivate()
