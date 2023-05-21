@@ -14,6 +14,7 @@ namespace RHI::Vulkan {
     std::vector<const char*> enabledExtensions
     {
         VK_KHR_SURFACE_EXTENSION_NAME,
+            "VK_KHR_portability_enumeration",
 #if PLATFORM_WINDOWS
             "VK_KHR_win32_surface",
 #elif PLATFORM_MACOS
@@ -28,7 +29,7 @@ namespace RHI::Vulkan {
         "VK_LAYER_LUNARG_api_dump"
 #endif
     };
-
+    
     class VKInstancePrivate {
         VKInstance* parent;
 
@@ -47,6 +48,25 @@ namespace RHI::Vulkan {
         {
             vk::ApplicationInfo applicationInfo {"Traveler GameEngine", 1, "Traveler GameEngine", 1, VK_API_VERSION_1_3};
 
+            uint32_t instanceLayerCount = 0;
+            vk::Result result;
+
+            result = vk::enumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
+            assert(result == vk::Result::eSuccess);
+
+            std::vector<vk::LayerProperties> instanceLayers(instanceLayerCount);
+            result = vk::enumerateInstanceLayerProperties(&instanceLayerCount, instanceLayers.data());
+            assert(result == vk::Result::eSuccess);
+
+            std::vector<const char*> filterEnabledLayers;
+            for (auto const& layer : instanceLayers) {
+                for (auto const& name : enabledLayers) {
+                    if (layer.layerName == name) {
+                        filterEnabledLayers.push_back(name);
+                    }
+                }
+            }
+
             vk::InstanceCreateInfo createInfo
             {
 #if defined(__APPLE__)
@@ -56,15 +76,15 @@ namespace RHI::Vulkan {
                 vk::InstanceCreateFlags(),
 #endif
                     &applicationInfo,
-                    static_cast<uint32_t>(enabledLayers.size()),
-                    enabledLayers.data(),
+                    static_cast<uint32_t>(filterEnabledLayers.size()),
+                    filterEnabledLayers.data(),
                     static_cast<uint32_t>(enabledExtensions.size()),
                     enabledExtensions.data(),
                     nullptr
             };
 
             vk::Instance instance;
-            vk::Result result = vk::createInstance(&createInfo, nullptr, &instance);
+            result = vk::createInstance(&createInfo, nullptr, &instance);
             assert(result == vk::Result::eSuccess);
 
             this->instance = std::make_shared<vk::Instance>(instance);
