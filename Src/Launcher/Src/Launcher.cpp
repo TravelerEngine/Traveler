@@ -98,10 +98,7 @@ namespace Main {
         auto swapChain = device->CreateSwapChain(swapChainCreateInfo);
     } // namespace Main
 
-    Launcher::~Launcher()
-    {
-        glfwDestroyWindow(m_private->window);
-    }
+    Launcher::~Launcher() = default;
 
     int Launcher::Exec()
     {
