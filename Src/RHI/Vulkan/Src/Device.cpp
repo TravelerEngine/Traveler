@@ -73,10 +73,14 @@ namespace RHI::Vulkan {
                 std::cout << "\t|" << std::endl;
                 std::cout << "\t|--[Layer Name]--> " << layer.layerName << std::endl;
                 std::cout << "\t|--[Layer Description]--> " << layer.description << std::endl;
-                for (auto const& name : validationLayers) {
-                    if (layer.layerName == name) {
+                for (auto const* name : validationLayers) {
+                    const char* layerName = layer.layerName;
+                    if (std::strcmp(name, layerName) == 0) {
+                        std::cout << "\t|--[Layer Enabled]--> true" << std::endl;
                         enabledLayers.push_back(name);
+                        break;
                     }
+                    std::cout << "\t|--[Layer Enabled]--> false" << std::endl;
                 }
             }
             std::cout << "Device Extensions info" << std::endl;
