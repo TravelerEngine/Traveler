@@ -110,7 +110,7 @@ namespace RHI::Vulkan {
 
             gpus.resize(devices.size());
             std::transform(devices.begin(), devices.end(), gpus.begin(), [this](vk::PhysicalDevice device) {
-                return VKGpu::Create(parent, device);
+                return Create<VKGpu>(parent, device);
             });
 
             return vk::Result::eSuccess;

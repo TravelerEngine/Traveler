@@ -1,5 +1,6 @@
 #include "RHI/Vulkan/Device.h"
 
+#include "RHI/Vulkan/Common.h"
 #include "RHI/Vulkan/Gpu.h"
 #include "RHI/Vulkan/Queue.h"
 #include "RHI/Vulkan/Surface.h"
@@ -128,7 +129,7 @@ namespace RHI::Vulkan {
 
     std::shared_ptr<Surface> VKDevice::CreateSurface(SurfaceCreateInfo& info)
     {
-        return VKSurface::Create(shared_from_this(), info);
+        return Create<VKSurface>(shared_from_this(), info);
     }
 
     uint32_t VKDevice::GetQueueCount() const
@@ -143,7 +144,7 @@ namespace RHI::Vulkan {
 
     std::shared_ptr<SwapChain> VKDevice::CreateSwapChain(SwapChainCreateInfo& info)
     {
-        return VKSwapChain::Create(shared_from_this(), info);
+        return Create<VKSwapChain>(shared_from_this(), info);
     }
 
     std::shared_ptr<VKGpu> VKDevice::GetGPU() const

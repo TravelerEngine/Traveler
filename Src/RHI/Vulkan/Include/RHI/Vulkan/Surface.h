@@ -15,13 +15,8 @@ namespace RHI::Vulkan {
     class VKSurface : public Surface {
         std::unique_ptr<VKSurfacePrivate> m_private;
 
-        explicit VKSurface(std::shared_ptr<VKDevice> device, const SurfaceCreateInfo& info);
-
     public:
-        [[nodiscard]] static std::shared_ptr<VKSurface> Create(std::shared_ptr<VKDevice> device, const SurfaceCreateInfo& info)
-        {
-            return std::shared_ptr<VKSurface>(new VKSurface(std::move(device), info));
-        }
+        explicit VKSurface(std::shared_ptr<VKDevice> device, const SurfaceCreateInfo& info);
         ~VKSurface() override;
 
         vk::SurfaceKHR GetSurface() const;

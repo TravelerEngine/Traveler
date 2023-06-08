@@ -34,7 +34,7 @@ namespace RHI::Vulkan {
 
     std::shared_ptr<Device> VKGpu::CreateDevice()
     {
-        return VKDevice::Create(shared_from_this());
+        return Create<VKDevice>(shared_from_this());
     }
 
     const vk::PhysicalDevice& VKGpu::GetVkPhysicalDevice() const

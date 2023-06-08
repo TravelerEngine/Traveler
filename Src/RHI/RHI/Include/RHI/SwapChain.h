@@ -10,10 +10,8 @@ namespace RHI {
     class Surface;
     struct SwapChainCreateInfo {
         std::shared_ptr<Surface> surface;
-        struct Extent {
-            uint32_t width;
-            uint32_t height;
-        } extent;
+        Extent extent;
+        PixelFormat format;
     };
     class SwapChain {
     public:

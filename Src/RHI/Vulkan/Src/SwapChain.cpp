@@ -1,9 +1,11 @@
 #include "RHI/Vulkan/SwapChain.h"
 
+#include <RHI/Vulkan/Common.h>
 #include <RHI/Vulkan/Device.h>
 #include <RHI/Vulkan/Gpu.h>
-#include <RHI/Vulkan/Surface.h>
 #include <RHI/Vulkan/Queue.h>
+#include <RHI/Vulkan/Surface.h>
+#include <RHI/Vulkan/Texture.h>
 
 #include <limits>
 #include <memory>
@@ -14,9 +16,10 @@ namespace RHI::Vulkan {
         vk::SurfaceFormatKHR format;
         vk::PresentModeKHR presentMode;
         vk::SwapchainKHR vkSwapChainKHR;
+        std::vector<std::shared_ptr<VKTexture>> swapChainImages;
 
     public:
-        explicit VKSwapChainPrivate(std::shared_ptr<VKDevice> device, SwapChainCreateInfo& info)
+        explicit VKSwapChainPrivate(std::shared_ptr<VKDevice> device, const SwapChainCreateInfo& info)
             : vkDevice(std::move(device))
         {
             auto vkPhysicalDevice = vkDevice->GetGPU()->GetVkPhysicalDevice();
@@ -42,13 +45,19 @@ namespace RHI::Vulkan {
                 .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
                 .setOldSwapchain(nullptr);
             assert(vkDevice->GetDevice().createSwapchainKHR(&createInfo, nullptr, &vkSwapChainKHR) == vk::Result::eSuccess);
+
+            auto vkImages = vkDevice->GetDevice().getSwapchainImagesKHR(vkSwapChainKHR);
+            swapChainImages.resize(vkImages.size());
+            for (const auto& vkImage : vkImages) {
+                swapChainImages.emplace_back(Create<VKTexture>(device, info, vkImage));
+            }
         }
 
         ~VKSwapChainPrivate()
         {
             vkDevice->GetDevice().destroySwapchainKHR(vkSwapChainKHR);
         }
-        
+
         static vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats)
         {
             for (auto const format : formats) {
@@ -71,7 +80,7 @@ namespace RHI::Vulkan {
         }
     };
 
-    VKSwapChain::VKSwapChain(std::shared_ptr<VKDevice> device, SwapChainCreateInfo& info)
+    VKSwapChain::VKSwapChain(std::shared_ptr<VKDevice> device, const SwapChainCreateInfo& info)
         : m_private(std::make_unique<VKSwapChainPrivate>(std::move(device), info))
     {}
     VKSwapChain::~VKSwapChain() = default;
