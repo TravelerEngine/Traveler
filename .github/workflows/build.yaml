@@ -1,0 +1,41 @@
+name: Build
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      matrix:
+        config:
+          # glfw3 is missing
+          # - os: ubuntu-latest
+          #   vcpkg_triplet: x64-linux-release
+          - os: macOS-latest
+            vcpkg_triplet: x64-osx-release
+          - os: windows-latest
+            vcpkg_triplet: x64-windows-release
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Update Cache Files
+        uses: actions/cache@v2
+        with:
+          path: ${{github.workspace}}/ThirdParty/Zip
+          key: ${{ matrix.config.os }}-3rd-zip
+
+      - uses: johnwason/vcpkg-action@v5
+        with:
+          cache-key: ${{ matrix.config.os }}
+          token: ${{ github.token }}
+          manifest-dir: ${{ github.workspace }}
+          triplet: ${{ matrix.config.vcpkg_triplet }}
+          revision: master
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build
