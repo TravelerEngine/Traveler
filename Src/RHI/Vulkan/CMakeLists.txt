@@ -1,4 +1,13 @@
-file(GLOB SOURCES Src/*.cpp)
+set(SOURCES
+    Src/Device.cpp
+    Src/Gpu.cpp
+    Src/Instance.cpp
+    Src/Queue.cpp
+    Src/Surface.cpp
+    Src/SwapChain.cpp
+    Src/Texture.cpp
+    Src/TextureView.cpp
+)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
   set(PLATFORM_SOURCES Src/Platform/Win32Surface.cpp)

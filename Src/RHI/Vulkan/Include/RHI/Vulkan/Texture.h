@@ -7,12 +7,13 @@
 namespace RHI::Vulkan {
     class VKDevice;
     class VKTexturePrivate;
-    class VKTexture : public Texture {
+    class VKTexture : public Texture
+        , public std::enable_shared_from_this<VKTexture> {
         std::unique_ptr<VKTexturePrivate> m_private;
 
     public:
         explicit VKTexture(std::shared_ptr<VKDevice> device, const SwapChainCreateInfo& info, const vk::Image& image);
-        TextureView* CreateTextureView(const TextureViewCreateInfo& createInfo) override;
+        std::shared_ptr<TextureView> CreateTextureView(const TextureViewCreateInfo& createInfo) override;
         ~VKTexture() override;
     };
 } // namespace RHI::Vulkan

@@ -3,6 +3,7 @@
 #include "RHI/Common.h"
 #include "RHI/Vulkan/Device.h"
 #include "RHI/Vulkan/SwapChain.h"
+#include "RHI/Vulkan/TextureView.h"
 
 #include <memory>
 
@@ -29,8 +30,8 @@ namespace RHI::Vulkan {
 
     VKTexture::~VKTexture() = default;
 
-    TextureView* VKTexture::CreateTextureView(const TextureViewCreateInfo& createInfo)
+    std::shared_ptr<TextureView> VKTexture::CreateTextureView(const TextureViewCreateInfo& createInfo)
     {
-        return nullptr;
+        return Create<VKTextureView>(shared_from_this(), createInfo);
     }
 } // namespace RHI::Vulkan
